@@ -1,0 +1,22 @@
+{
+	"name": "WikiPoints",
+	"author": "Tali64",
+	"description": "Extension providing a leaderboard for contributors, based on WikiPoints",
+	"version": "1.0.0",
+	"type": "specialpage",
+	"license-name": "GPL-3.0-or-later",
+	"manifest_version": 2,
+	"AutoloadClasses": {
+		"MediaWiki\\Extension\\WikiPoints\\SpecialWikiPoints": "includes/SpecialWikiPoints.php",
+		"MediaWiki\\Extension\\WikiPoints\\SpecialMostWikiPoints": "includes/SpecialMostWikiPoints.php"
+	},
+	"MessagesDirs": {
+		"WikiPoints": [
+			"i18n"
+		]
+	},
+	"SpecialPages": {
+		"WikiPoints": "MediaWiki\\Extension\\WikiPoints\\SpecialWikiPoints",
+		"MostWikiPoints": "MediaWiki\\Extension\\WikiPoints\\SpecialMostWikiPoints"
+	}
+}
