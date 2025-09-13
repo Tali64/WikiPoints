@@ -63,25 +63,14 @@ class SpecialMostWikiPoints extends SpecialPage {
 	
 	private function calculateWikiPoints($userID) {
 		$dbProvider = MediaWikiServices::getInstance()->getConnectionProvider();
-		$dbr = $dbProvider->getReplicaDatabase(); /** For MW < 1.40, use older method to get db connection **/
-		$res = $dbr->newSelectQueryBuilder()
-		->select( [ 'rev_len', 'rev_parent_id' ] )
-		->from( 'revision' )
-		->where( [ 'rev_actor' => $userID ] )
-		->caller( __METHOD__ )->fetchResultSet();
-		$wikiPoints = 0;
-		foreach ( $res as $row ) {
-			$wikiPoints += $row->rev_len;
-			if ($row->rev_parent_id > 0) {
-				$parentLength = $dbr->newSelectQueryBuilder()
-				->select( [ 'rev_len', ] )
-				->from( 'revision' )
-				->where( [ 'rev_id' => $row->rev_parent_id ] )
-				->caller( __METHOD__ )
-				->fetchRow();
-				$wikiPoints -= $parentLength->rev_len;
-			}
-		}
+		$dbr = $dbProvider->getReplicaDatabase();
+        $wikiPoints = $dbr->newSelectQueryBuilder()
+        ->select( [ 'wiki_points' => 'SUM(r.rev_len - COALESCE(p.rev_len, 0))' ] )
+        ->from( 'revision', 'r' )
+        ->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
+        ->where( [ 'r.rev_actor' => $userID ] )
+        ->caller( __METHOD__ )
+        ->fetchRow()->wiki_points;
 		return $wikiPoints;
 	}
 }
