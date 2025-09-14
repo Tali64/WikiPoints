@@ -18,7 +18,7 @@ class SpecialWikiPoints extends SpecialPage {
 				'username' => [
 					'section' => 'wikipoints-special-form-name',
 					'label-message' => 'wikipoints-special-form-name-label',
-					'type' => 'text',
+					'type' => 'user',
 				],
 			];
 
@@ -41,25 +41,15 @@ class SpecialWikiPoints extends SpecialPage {
 		}
 	}
 
-	public function trySubmit( $formData ) {
+	public function trySubmit($formData) {
 		$request = $this->getRequest();
         $out = $this->getOutput();
 		$out->redirect(Title::makeTitle(NS_SPECIAL, 'WikiPoints/' .$formData['username'])->getLocalURL());
 		return true;
 	}
 	private function getUserID($user) {
-		$dbProvider = MediaWikiServices::getInstance()->getConnectionProvider();
-		$dbr = $dbProvider->getReplicaDatabase(); /** For MW < 1.40, use older method to get db connection **/
-		$userID = $dbr->newSelectQueryBuilder()
-		->select([ 'actor_id', ])
-		->from('actor')
-		->where([ 'actor_name' => $user ])
-		->caller(__METHOD__)
-		->fetchRow();
-		if (!$userID) {
-			return 0;
-		}
-		$userID = $userID->actor_id;
+        $userFactory = MediaWikiServices::getInstance()->getUserFactory();
+		$userID = $userFactory->newFromName($user)->getActorId();
 		return $userID;
 	}
 	

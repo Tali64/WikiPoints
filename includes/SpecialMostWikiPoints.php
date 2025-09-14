@@ -46,18 +46,8 @@ class SpecialMostWikiPoints extends SpecialPage {
 	}
 
 	private function getUserID($user) {
-		$dbProvider = MediaWikiServices::getInstance()->getConnectionProvider();
-		$dbr = $dbProvider->getReplicaDatabase(); /** For MW < 1.40, use older method to get db connection **/
-		$userID = $dbr->newSelectQueryBuilder()
-		->select([ 'actor_id', ])
-		->from('actor')
-		->where([ 'actor_name' => $user ])
-		->caller(__METHOD__)
-		->fetchRow();
-		if (!$userID) {
-			return 0;
-		}
-		$userID = $userID->actor_id;
+        $userFactory = MediaWikiServices::getInstance()->getUserFactory();
+		$userID = $userFactory->newFromName($user)->getActorId();
 		return $userID;
 	}
 	
