@@ -38,7 +38,7 @@ class SpecialMostWikiPoints extends SpecialPage {
         for ($i = 0; $i < min(count($wikiPointScores), 20); $i++) {
             $out->addHTML(Html::openElement('tr'));
             $out->addHTML(Html::element('td', [], $i + 1));
-            $out->addHTML(Html::element('td', [], $wikiPointScores[$i]['username']));
+            $out->addHTML(Html::rawElement('td', [], $out->parseInlineAsInterface('[[Special:Contributions/' . $wikiPointScores[$i]['username'] . '|' . $wikiPointScores[$i]['username'] . ']]')));
             $out->addHTML(Html::element('td', [], number_format($wikiPointScores[$i]['score'])));
             $out->addHTML(Html::closeElement('tr'));
         }
