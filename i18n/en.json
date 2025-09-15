@@ -1,4 +1,6 @@
 {
+    "wikipoints-description": "Extension providing a leaderboard for contributors, based on WikiPoints",
+	"wikipoints": "Get WikiPoints for a user",
 	"wikipoints-special-form-name": "Get WikiPoints for a user",
 	"wikipoints-special-form-name-label": "Username",
     "mostwikipoints": "Users with the most WikiPoints",

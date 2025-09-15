@@ -1,7 +1,10 @@
 {
 	"name": "WikiPoints",
 	"author": "Tali64",
-	"description": "Extension providing a leaderboard for contributors, based on WikiPoints",
+	"descriptionmsg": "wikipoints-description",
+	"requires": {
+		"MediaWiki": ">= 1.43.0"
+	},
 	"version": "1.0.0",
 	"type": "specialpage",
 	"license-name": "GPL-3.0-or-later",
