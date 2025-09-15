@@ -1,6 +1,6 @@
 <?php
 namespace MediaWiki\Extension\WikiPoints;
-use SpecialPage;
+use MediaWiki\SpecialPage\SpecialPage;
 use HTMLForm;
 use MediaWiki\Title\Title;
 use MediaWiki\MediaWikiServices;
@@ -13,7 +13,7 @@ class SpecialWikiPoints extends SpecialPage {
 
     public function execute( $subPage ) {
 		$out = $this->getOutput();
-        $out->setPageTitle('Get WikiPoints for a user');
+        $out->setPageTitle( 'Get WikiPoints for a user' );
 		$formDescriptor = [
 				'username' => [
 					'section' => 'wikipoints-special-form-name',
@@ -22,42 +22,42 @@ class SpecialWikiPoints extends SpecialPage {
 				],
 			];
 
-		$htmlForm = HTMLForm::factory('ooui', $formDescriptor, $this->getContext());
+		$htmlForm = HTMLForm::factory( 'ooui', $formDescriptor, $this->getContext() );
 		$htmlForm
-		->setSubmitText('Submit')
-		->setSubmitCallback([$this, 'trySubmit'])
+		->setSubmitText( 'Submit' )
+		->setSubmitCallback( [$this, 'trySubmit'] )
 		->show();
-		if ($subPage) {
+		if ( $subPage ) {
 			$dbProvider = MediaWikiServices::getInstance()->getConnectionProvider();
 			$dbr = $dbProvider->getReplicaDatabase();
-			$username = str_replace('_', ' ', $subPage);
-			$userID = $this->getUserID($username);
-			if ($userID == 0) {
-				$out->addWikiTextAsContent("$username does not exist.");
+			$username = str_replace( '_', ' ', $subPage );
+			$userID = $this->getUserID( $username );
+			if ( $userID == 0 ) {
+				$out->addWikiTextAsContent( "$username does not exist." );
 			} else {
-				$wikiPoints = number_format($this->calculateWikiPoints($userID));
-				$out->addWikiTextAsContent("$username has '''$wikiPoints''' WikiPoints.");
+				$lang = $this->getLanguage();
+				$wikiPoints = $lang->formatNum( $this->calculateWikiPoints( $userID ) );
+				$out->addWikiTextAsContent( "$username has '''$wikiPoints''' WikiPoints." );
 			}
 		}
 	}
 
-	public function trySubmit($formData) {
-		$request = $this->getRequest();
+	public function trySubmit( $formData ) {
         $out = $this->getOutput();
-		$out->redirect(Title::makeTitle(NS_SPECIAL, 'WikiPoints/' .$formData['username'])->getLocalURL());
+		$out->redirect( Title::makeTitleSafe( NS_SPECIAL, 'WikiPoints/' .$formData['username'] )->getLocalURL() );
 		return true;
 	}
-	private function getUserID($user) {
+	private function getUserID( $user ) {
         $userFactory = MediaWikiServices::getInstance()->getUserFactory();
-		$userID = $userFactory->newFromName($user)->getActorId();
+		$userID = $userFactory->newFromName( $user )->getActorId();
 		return $userID;
 	}
 	
-	private function calculateWikiPoints($userID) {
+	private function calculateWikiPoints( $userID ) {
 		$dbProvider = MediaWikiServices::getInstance()->getConnectionProvider();
 		$dbr = $dbProvider->getReplicaDatabase();
         $wikiPoints = $dbr->newSelectQueryBuilder()
-        ->select( [ 'wiki_points' => 'SUM(r.rev_len - COALESCE(p.rev_len, 0))' ] )
+        ->select( [ 'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )' ] )
         ->from( 'revision', 'r' )
         ->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
         ->where( [ 'r.rev_actor' => $userID ] )

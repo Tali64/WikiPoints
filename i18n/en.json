@@ -1,5 +1,8 @@
 {
 	"wikipoints-special-form-name": "Get WikiPoints for a user",
 	"wikipoints-special-form-name-label": "Username",
-    "wikipoints-mostpoints-title": "Users with the most WikiPoints"
+    "mostwikipoints": "Users with the most WikiPoints",
+	"specialpage-MostWikiPoints": "Most Wiki Points",
+	"wikipoints-mostpoints-title": "Top contributors by wiki points",
+	"wikipoints-mostpoints-description": "List top contributors by wiki points"
 }

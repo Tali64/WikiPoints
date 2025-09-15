@@ -1,6 +1,6 @@
 <?php
 namespace MediaWiki\Extension\WikiPoints;
-use SpecialPage;
+use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Html\Html;
 
@@ -11,56 +11,47 @@ class SpecialMostWikiPoints extends SpecialPage {
 
     public function execute( $subPage ) {
 		$out = $this->getOutput();
-        $out->setPageTitle('Users with the most WikiPoints');
+		$this->setHeaders();
+        // $out->setPageTitle( $this->msg( 'wikipoints-mostpoints-title' ) );
 	    $dbProvider = MediaWikiServices::getInstance()->getConnectionProvider();
 		$dbr = $dbProvider->getReplicaDatabase(); /** For MW < 1.40, use older method to get db connection **/
-		$res = $dbr->newSelectQueryBuilder()
-		->select( [ 'actor_name' ] )
-		->from( 'actor' )
-		->caller( __METHOD__ )->fetchResultSet();
-        $wikiPointScores = [];
+		$qb = $dbr->newSelectQueryBuilder()
+		->select( [
+			'a.actor_name',
+			'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )'
+		] )
+		->from( 'revision', 'r' )
+		->leftJoin( 'revision', 'p', [ 'r.rev_parent_id = p.rev_id' ] ) // table, alias, conds
+		->join( 'actor', 'a', [ 'r.rev_actor = a.actor_id' ] )         // table, alias, conds
+		->groupBy( [ 'r.rev_actor', 'a.actor_name' ] )
+		->orderBy( 'wiki_points', 'DESC' )
+		->limit( 20 )
+		->caller( __METHOD__ );
+
+		$res = $qb->fetchResultSet();
+        $out->addHTML( Html::openElement( 'table', ['class' => 'wikitable'] ) );
+        $out->addHTML( Html::openElement( 'tr' ) );
+        $out->addHTML( Html::element( 'th', [], 'Rank' ) );
+        $out->addHTML( Html::element( 'th', [], 'Username' ) );
+        $out->addHTML( Html::element( 'th', [], 'WikiPoints' ) );
+        $out->addHTML( Html::closeElement( 'tr' ) );
+		$i = 1;
+		$lang = $this->getLanguage();
 		foreach ( $res as $row ) {
-            $userID = $this->getUserID($row->actor_name);
-            $wikiPointScores[] = [
-                "username" => $row->actor_name,
-                "score" => $this->calculateWikiPoints($userID),
-            ];
-		}
-        usort($wikiPointScores, function ($a, $b) {
-            return $b["score"] <=> $a["score"];
-        });
-        $out->addHTML(Html::openElement('table', ['class' => 'wikitable']));
-        $out->addHTML(Html::openElement('tr'));
-        $out->addHTML(Html::element('th', [], 'Rank'));
-        $out->addHTML(Html::element('th', [], 'Username'));
-        $out->addHTML(Html::element('th', [], 'WikiPoints'));
-        $out->addHTML(Html::closeElement('tr'));
-        for ($i = 0; $i < min(count($wikiPointScores), 20); $i++) {
-            $out->addHTML(Html::openElement('tr'));
-            $out->addHTML(Html::element('td', [], $i + 1));
-            $out->addHTML(Html::rawElement('td', [], $out->parseInlineAsInterface('[[Special:Contributions/' . $wikiPointScores[$i]['username'] . '|' . $wikiPointScores[$i]['username'] . ']]')));
-            $out->addHTML(Html::element('td', [], number_format($wikiPointScores[$i]['score'])));
-            $out->addHTML(Html::closeElement('tr'));
+		    $out->addHTML( Html::openElement( 'tr' ) );
+            $out->addHTML( Html::element( 'td', [], $lang->formatNum( $i ) ) );
+            $out->addHTML( Html::rawElement( 'td', [], $out->parseInlineAsInterface( '[[Special:Contributions/' . $row->actor_name . '|' . $row->actor_name . ']]' ) ) );
+            $out->addHTML( Html::element( 'td', [], $lang->formatNum( $row->wiki_points ) ) );
+            $out->addHTML( Html::closeElement( 'tr' ) );
+			$i++;
         }
-        $out->addHTML(Html::closeElement('table'));
+        $out->addHTML( Html::closeElement( 'table' ) );
 	}
 
-	private function getUserID($user) {
+	private function getUserID( $user ) {
         $userFactory = MediaWikiServices::getInstance()->getUserFactory();
-		$userID = $userFactory->newFromName($user)->getActorId();
+		$userID = $userFactory->newFromName( $user )->getActorId();
 		return $userID;
 	}
 	
-	private function calculateWikiPoints($userID) {
-		$dbProvider = MediaWikiServices::getInstance()->getConnectionProvider();
-		$dbr = $dbProvider->getReplicaDatabase();
-        $wikiPoints = $dbr->newSelectQueryBuilder()
-        ->select( [ 'wiki_points' => 'SUM(r.rev_len - COALESCE(p.rev_len, 0))' ] )
-        ->from( 'revision', 'r' )
-        ->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
-        ->where( [ 'r.rev_actor' => $userID ] )
-        ->caller( __METHOD__ )
-        ->fetchRow()->wiki_points;
-		return $wikiPoints;
-	}
 }
