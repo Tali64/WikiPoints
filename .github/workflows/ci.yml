@@ -69,6 +69,7 @@ jobs:
 
       - name: Composer update
         run: composer update
+        working-directory: mediawiki/extensions/WikiPoints
 
       #- name: Run PHPUnit
       #  run: composer phpunit:entrypoint -- --group WikiPoints -c tests/phpunit/suite.xml
@@ -78,6 +79,8 @@ jobs:
 
       - name: Run phpcs
         run: composer run test
+        working-directory: mediawiki/extensions/WikiPoints
 
       - name: Run phan
         run: composer run phan
+        working-directory: mediawiki/extensions/WikiPoints
