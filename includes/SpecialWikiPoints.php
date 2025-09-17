@@ -19,7 +19,7 @@ class SpecialWikiPoints extends SpecialPage {
 	/**
 	 * @inheritDoc
 	 */
-	public function execute( $subPage ) {
+	public function execute( $subPage ): void {
 		$out = $this->getOutput();
 		$this->setHeaders();
 		$formDescriptor = [
@@ -38,7 +38,7 @@ class SpecialWikiPoints extends SpecialPage {
 
 		if ( $subPage ) {
 			$username = str_replace( '_', ' ', $subPage );
-			$userID = $this->getUserID( $username );
+			$userID = $this->userFactory->newFromName( $username )->getActorId();
 			if ( $userID == 0 ) {
 				$out->addWikiTextAsContent( "$username does not exist." );
 			} else {
@@ -51,17 +51,13 @@ class SpecialWikiPoints extends SpecialPage {
 		}
 	}
 
-	public function trySubmit( $formData ) {
+	public function trySubmit( array $formData ): bool {
 		$out = $this->getOutput();
 		$out->redirect( Title::makeTitleSafe( NS_SPECIAL, 'WikiPoints/' . $formData[ 'username' ] )->getLocalURL() );
 		return true;
 	}
 
-	private function getUserID( $user ) {
-		return $this->userFactory->newFromName( $user )->getActorId();
-	}
-
-	private function calculateWikiPoints( $userID ) {
+	private function calculateWikiPoints( int $userID ): int {
 		$dbr = $this->connectionProvider->getReplicaDatabase();
 		return $dbr->newSelectQueryBuilder()
 			->select( [ 'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )' ] )

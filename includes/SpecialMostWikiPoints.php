@@ -20,7 +20,7 @@ class SpecialMostWikiPoints extends SpecialPage {
 	/**
 	 * @inheritDoc
 	 */
-	public function execute( $subPage ) {
+	public function execute( $subPage ): void {
 		$out = $this->getOutput();
 		$this->setHeaders();
 
