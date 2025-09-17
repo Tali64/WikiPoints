@@ -13,6 +13,9 @@
 		"MediaWiki\\Extension\\WikiPoints\\SpecialWikiPoints": "includes/SpecialWikiPoints.php",
 		"MediaWiki\\Extension\\WikiPoints\\SpecialMostWikiPoints": "includes/SpecialMostWikiPoints.php"
 	},
+	"ExtensionMessagesFiles": {
+		"WikiPointsAlias": "WikiPoints.i18n.alias.php"
+	},
 	"MessagesDirs": {
 		"WikiPoints": [
 			"i18n"
