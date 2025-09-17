@@ -46,7 +46,9 @@ class SpecialMostWikiPoints extends SpecialPage {
 		$lang = $this->getLanguage();
 		$linkRenderer = $this->MWServices->getLinkRenderer();
 		foreach ( $res as $row ) {
-			$title = Title::newFromText( "Special:Contributions/{$row->actor_name}" );
+			$title = $this->MWServices->getSpecialPageFactory()
+				->getPage( 'Contributions' )
+				->getPageTitle( $row->actor_name );
 			$out->addHTML( Html::openElement( 'tr' ) );
 			$out->addHTML( Html::element( 'td', [], $lang->formatNum( $i ) ) );
 			$out->addHTML( Html::rawElement( 'td', [], $linkRenderer->makeLink( $title, $row->actor_name, [] ) ) );
