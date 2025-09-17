@@ -2,7 +2,9 @@
 namespace MediaWiki\Extension\WikiPoints;
 
 use MediaWiki\HTMLForm\HTMLForm;
+use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\SpecialPage\SpecialPage;
+use MediaWiki\SpecialPage\SpecialPageFactory;
 use MediaWiki\User\UserFactory;
 use Wikimedia\Rdbms\IConnectionProvider;
 
@@ -10,6 +12,8 @@ class SpecialWikiPoints extends SpecialPage {
 
 	public function __construct(
 		private readonly IConnectionProvider $connectionProvider,
+		private readonly LinkRenderer $linkRenderer,
+		private readonly SpecialPageFactory $specialPageFactory,
 		private readonly UserFactory $userFactory,
 	) {
 		parent::__construct( 'WikiPoints' );
@@ -39,12 +43,16 @@ class SpecialWikiPoints extends SpecialPage {
 			$username = str_replace( '_', ' ', $subPage );
 			$userID = $this->userFactory->newFromName( $username )->getActorId();
 			if ( $userID == 0 ) {
-				$out->addWikiTextAsContent( "$username does not exist." );
+				$out->addWikiMsg( 'wikipoints-user-nonexistent', $username );
 			} else {
 				$lang = $this->getLanguage();
 				$wikiPoints = $lang->formatNum( $this->calculateWikiPoints( $userID ) );
-				$out->addWikiTextAsContent(
-					"[[Special:Contributions/$username|$username]] has '''$wikiPoints''' WikiPoints."
+				$contributions = $this->specialPageFactory->getPage( 'Contributions' )->getPageTitle( $username );
+				$out->addHTML(
+					$this->msg( 'wikipoints-user-has' )
+						->rawParams( $this->linkRenderer->makeLink( $contributions, $username ) )
+						->params( $wikiPoints )
+						->parse()
 				);
 			}
 		}

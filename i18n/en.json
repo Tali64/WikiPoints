@@ -6,5 +6,7 @@
     "mostwikipoints": "Users with the most WikiPoints",
 	"specialpage-MostWikiPoints": "Most Wiki Points",
 	"wikipoints-mostpoints-title": "Top contributors by wiki points",
-	"wikipoints-mostpoints-description": "List top contributors by wiki points"
+	"wikipoints-mostpoints-description": "List top contributors by wiki points",
+	"wikipoints-user-has": "$1 has '''$2''' WikiPoints.",
+	"wikipoints-user-nonexistent": "$1 does not exist."
 }

@@ -23,6 +23,8 @@
 			"class": "MediaWiki\\Extension\\WikiPoints\\SpecialWikiPoints",
 			"services": [
 				"ConnectionProvider",
+				"LinkRenderer",
+				"SpecialPageFactory",
 				"UserFactory"
 			]
 		},
