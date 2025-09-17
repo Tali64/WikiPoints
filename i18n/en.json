@@ -13,6 +13,6 @@
 	"wikipoints-mostpoints-rank": "Rank",
 	"wikipoints-mostpoints-username": "Username",
 	"wikipoints-mostpoints-wikipoints": "WikiPoints",
-	"wikipoints-user-has": "$1 has '''{{#formatnum:$2}}''' WikiPoints.",
+	"wikipoints-user-has": "$1 has '''$2''' WikiPoints.",
 	"wikipoints-user-nonexistent": "$1 does not exist."
 }
