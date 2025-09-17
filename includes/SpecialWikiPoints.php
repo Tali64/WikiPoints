@@ -1,9 +1,8 @@
 <?php
 namespace MediaWiki\Extension\WikiPoints;
 
-use MediaWiki\HTMLForm\HtmlForm;
+use MediaWiki\HTMLForm\HTMLForm;
 use MediaWiki\SpecialPage\SpecialPage;
-use MediaWiki\Title\Title;
 use MediaWiki\User\UserFactory;
 use Wikimedia\Rdbms\IConnectionProvider;
 
@@ -53,7 +52,7 @@ class SpecialWikiPoints extends SpecialPage {
 
 	public function trySubmit( array $formData ): bool {
 		$out = $this->getOutput();
-		$out->redirect( Title::makeTitleSafe( NS_SPECIAL, 'WikiPoints/' . $formData[ 'username' ] )->getLocalURL() );
+		$out->redirect( $this->getPageTitle( $formData[ 'username' ] )->getLocalURL() );
 		return true;
 	}
 
