@@ -43,9 +43,9 @@ class SpecialMostWikiPoints extends SpecialPage {
 
 		$out->addHTML( Html::openElement( 'table', [ 'class' => 'wikitable' ] ) );
 		$out->addHTML( Html::openElement( 'tr' ) );
-		$out->addHTML( Html::element( 'th', [], 'Rank' ) );
-		$out->addHTML( Html::element( 'th', [], 'Username' ) );
-		$out->addHTML( Html::element( 'th', [], 'WikiPoints' ) );
+		$out->addHTML( Html::element( 'th', [], $this->msg( 'wikipoints-mostpoints-rank' )->text() ) );
+		$out->addHTML( Html::element( 'th', [], $this->msg( 'wikipoints-mostpoints-username' )->text() ) );
+		$out->addHTML( Html::element( 'th', [], $this->msg( 'wikipoints-mostpoints-wikipoints' )->text() ) );
 		$out->addHTML( Html::closeElement( 'tr' ) );
 
 		$i = 1;
