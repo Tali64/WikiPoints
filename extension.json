@@ -13,13 +13,31 @@
 		"MediaWiki\\Extension\\WikiPoints\\SpecialWikiPoints": "includes/SpecialWikiPoints.php",
 		"MediaWiki\\Extension\\WikiPoints\\SpecialMostWikiPoints": "includes/SpecialMostWikiPoints.php"
 	},
+	"ExtensionMessagesFiles": {
+		"WikiPointsAlias": "WikiPoints.i18n.alias.php"
+	},
 	"MessagesDirs": {
 		"WikiPoints": [
 			"i18n"
 		]
 	},
 	"SpecialPages": {
-		"WikiPoints": "MediaWiki\\Extension\\WikiPoints\\SpecialWikiPoints",
-		"MostWikiPoints": "MediaWiki\\Extension\\WikiPoints\\SpecialMostWikiPoints"
+		"WikiPoints": {
+			"class": "MediaWiki\\Extension\\WikiPoints\\SpecialWikiPoints",
+			"services": [
+				"ConnectionProvider",
+				"LinkRenderer",
+				"SpecialPageFactory",
+				"UserFactory"
+			]
+		},
+		"MostWikiPoints": {
+			"class": "MediaWiki\\Extension\\WikiPoints\\SpecialMostWikiPoints",
+			"services": [
+				"ConnectionProvider",
+				"LinkRenderer",
+				"SpecialPageFactory"
+			]
+		}
 	}
 }

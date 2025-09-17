@@ -12,5 +12,5 @@ WikiPoints adds two special pages to MediaWiki:
 ## How do I install it?
 1. Download this repository.
 2. Extract it to your wiki's extension directory.
-3. Add `wfLoadExtension('WikiPoints');` to LocalSettings.php.
+3. Add `wfLoadExtension(' WikiPoints ');` to LocalSettings.php.
 4. You're done!
