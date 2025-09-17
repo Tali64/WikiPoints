@@ -19,7 +19,20 @@
 		]
 	},
 	"SpecialPages": {
-		"WikiPoints": "MediaWiki\\Extension\\WikiPoints\\SpecialWikiPoints",
-		"MostWikiPoints": "MediaWiki\\Extension\\WikiPoints\\SpecialMostWikiPoints"
+		"WikiPoints": {
+			"class": "MediaWiki\\Extension\\WikiPoints\\SpecialWikiPoints",
+			"services": [
+				"ConnectionProvider",
+				"UserFactory"
+			]
+		},
+		"MostWikiPoints": {
+			"class": "MediaWiki\\Extension\\WikiPoints\\SpecialMostWikiPoints",
+			"services": [
+				"ConnectionProvider",
+				"LinkRenderer",
+				"SpecialPageFactory"
+			]
+		}
 	}
 }

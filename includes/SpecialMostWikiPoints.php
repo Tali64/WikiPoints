@@ -2,15 +2,19 @@
 namespace MediaWiki\Extension\WikiPoints;
 
 use MediaWiki\Html\Html;
-use MediaWiki\MediaWikiServices;
+use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\SpecialPage\SpecialPage;
-use MediaWiki\Title\Title;
+use MediaWiki\SpecialPage\SpecialPageFactory;
+use Wikimedia\Rdbms\IConnectionProvider;
 
 class SpecialMostWikiPoints extends SpecialPage {
 
-	public function __construct() {
-			parent::__construct( 'MostWikiPoints' );
-			$this->MWServices = MediaWikiServices::getInstance();
+	public function __construct(
+		private readonly IConnectionProvider $connectionProvider,
+		private readonly LinkRenderer $linkRenderer,
+		private readonly SpecialPageFactory $specialPageFactory,
+	) {
+		parent::__construct( 'MostWikiPoints' );
 	}
 
 	/**
@@ -19,8 +23,8 @@ class SpecialMostWikiPoints extends SpecialPage {
 	public function execute( $subPage ) {
 		$out = $this->getOutput();
 		$this->setHeaders();
-		$dbProvider = $this->MWServices->getConnectionProvider();
-		$dbr = $dbProvider->getReplicaDatabase();
+
+		$dbr = $this->connectionProvider->getReplicaDatabase();
 		$qb = $dbr->newSelectQueryBuilder()
 			->select( [
 				'a.actor_name',
@@ -36,22 +40,21 @@ class SpecialMostWikiPoints extends SpecialPage {
 			->limit( 20 )
 			->caller( __METHOD__ );
 		$res = $qb->fetchResultSet();
+
 		$out->addHTML( Html::openElement( 'table', [ 'class' => 'wikitable' ] ) );
 		$out->addHTML( Html::openElement( 'tr' ) );
 		$out->addHTML( Html::element( 'th', [], 'Rank' ) );
 		$out->addHTML( Html::element( 'th', [], 'Username' ) );
 		$out->addHTML( Html::element( 'th', [], 'WikiPoints' ) );
 		$out->addHTML( Html::closeElement( 'tr' ) );
+
 		$i = 1;
 		$lang = $this->getLanguage();
-		$linkRenderer = $this->MWServices->getLinkRenderer();
 		foreach ( $res as $row ) {
-			$title = $this->MWServices->getSpecialPageFactory()
-				->getPage( 'Contributions' )
-				->getPageTitle( $row->actor_name );
+			$title = $this->specialPageFactory->getPage( 'Contributions' )->getPageTitle( $row->actor_name );
 			$out->addHTML( Html::openElement( 'tr' ) );
 			$out->addHTML( Html::element( 'td', [], $lang->formatNum( $i ) ) );
-			$out->addHTML( Html::rawElement( 'td', [], $linkRenderer->makeLink( $title, $row->actor_name, [] ) ) );
+			$out->addHTML( Html::rawElement( 'td', [], $this->linkRenderer->makeLink( $title, $row->actor_name ) ) );
 			$out->addHTML( Html::element( 'td', [], $lang->formatNum( $row->wiki_points ) ) );
 			$out->addHTML( Html::closeElement( 'tr' ) );
 			$i++;
