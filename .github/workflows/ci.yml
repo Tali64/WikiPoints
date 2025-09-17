@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: "PHPUnit: MW ${{ matrix.mw }}, PHP ${{ matrix.php }}"
+    name: "MW ${{ matrix.mw }}, PHP ${{ matrix.php }}"
     continue-on-error: ${{ matrix.experimental }}
 
     strategy:
