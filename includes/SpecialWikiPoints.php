@@ -72,6 +72,6 @@ class SpecialWikiPoints extends SpecialPage {
 			->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
 			->where( [ 'r.rev_actor' => $userID ] )
 			->caller( __METHOD__ )
-			->fetchRow()->wiki_points;
+			->fetchRow()->wiki_points ?? 0;
 	}
 }
