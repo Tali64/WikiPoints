@@ -3,6 +3,7 @@ namespace MediaWiki\Extension\WikiPoints;
 
 use MediaWiki\HTMLForm\HTMLForm;
 use MediaWiki\Linker\LinkRenderer;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\SpecialPage\SpecialPageFactory;
 use MediaWiki\User\UserFactory;
@@ -35,7 +36,7 @@ class SpecialWikiPoints extends SpecialPage {
 
 		$htmlForm = HTMLForm::factory( 'ooui', $formDescriptor, $this->getContext() );
 		$htmlForm
-			->setSubmitText( 'Submit' )
+			->setSubmitText( $this->msg( 'wikipoints-special-form-name-submit' ) )
 			->setSubmitCallback( [ $this, 'trySubmit' ] )
 			->show();
 
@@ -65,13 +66,23 @@ class SpecialWikiPoints extends SpecialPage {
 	}
 
 	private function calculateWikiPoints( int $userID ): int {
-		$dbr = $this->connectionProvider->getReplicaDatabase();
-		return $dbr->newSelectQueryBuilder()
-			->select( [ 'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )' ] )
-			->from( 'revision', 'r' )
-			->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
-			->where( [ 'r.rev_actor' => $userID ] )
-			->caller( __METHOD__ )
-			->fetchRow()->wiki_points ?? 0;
+		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$wikiPoints = $cache->getWithSetCallback(
+        $cache->makeKey( 'wikipoints', 'user-points', $userID ),
+        600, // 10 minutes
+        function () use ( $userID ) {
+            $dbr = $this->connectionProvider->getReplicaDatabase();
+			return $this->connectionProvider->getReplicaDatabase()
+				->newSelectQueryBuilder()
+				->select( [ 'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )' ] )
+				->from( 'revision', 'r' )
+				->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
+				->where( [ 'r.rev_actor' => $userID ] )
+				->caller( __METHOD__ )
+				->fetchRow()
+				->wiki_points ?? 0;
+        }
+		);
+		return $wikiPoints;
 	}
 }
