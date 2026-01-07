@@ -86,7 +86,7 @@ class SpecialMostWikiPoints extends SpecialPage {
 		}
 		$out->addHTML( Html::closeElement( 'table' ) );
 	}
-	
+
 	private function calculateWikiPoints( int $userID ): int {
 		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$wikiPoints = $cache->getWithSetCallback(

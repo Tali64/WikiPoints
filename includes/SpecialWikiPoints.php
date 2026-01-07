@@ -68,10 +68,11 @@ class SpecialWikiPoints extends SpecialPage {
 	private function calculateWikiPoints( int $userID ): int {
 		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$wikiPoints = $cache->getWithSetCallback(
-        $cache->makeKey( 'wikipoints', 'user-points', $userID ),
-        600, // 10 minutes
-        function () use ( $userID ) {
-            $dbr = $this->connectionProvider->getReplicaDatabase();
+		$cache->makeKey( 'wikipoints', 'user-points', $userID ),
+		// 10 minutes
+		600,
+		function () use ( $userID ) {
+			$dbr = $this->connectionProvider->getReplicaDatabase();
 			return $this->connectionProvider->getReplicaDatabase()
 				->newSelectQueryBuilder()
 				->select( [ 'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )' ] )
@@ -81,7 +82,7 @@ class SpecialWikiPoints extends SpecialPage {
 				->caller( __METHOD__ )
 				->fetchRow()
 				->wiki_points ?? 0;
-        }
+		}
 		);
 		return $wikiPoints;
 	}
