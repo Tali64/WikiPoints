@@ -62,12 +62,10 @@ class SpecialMostWikiPoints extends SpecialPage {
 		$rankings = [];
 		foreach ( $res as $row ) {
 			$points = $this->calculateWikiPoints( $row->actor_id );
-			if ( $points > 0 ) {
-				$rankings[] = [
-					'points' => $points,
-					'user' => $row->actor_name,
-				];
-			}
+			$rankings[] = [
+				'points' => $points,
+				'user' => $row->actor_name,
+			];
 		}
 		uasort( $rankings, static function ( $a, $b ) {
 			return $b['points'] <=> $a['points'];
