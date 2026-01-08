@@ -9,6 +9,7 @@
 	"wikipoints": "Get WikiPoints for a user",
 	"wikipoints-special-form-name": "Get WikiPoints for a user",
 	"wikipoints-special-form-name-label": "Username",
+	"wikipoints-special-form-name-submit": "Submit",
     "mostwikipoints": "Users with the most WikiPoints",
 	"wikipoints-mostpoints-rank": "Rank",
 	"wikipoints-mostpoints-username": "Username",

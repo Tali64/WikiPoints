@@ -1,0 +1,19 @@
+{
+	"@metadata": {
+		"authors": [
+			"Tali64",
+			"SomeRandomDeveloper"
+		]
+	},
+    "wikipoints-description": "Extension provee una clasificación para los colaboradores, basado en WikiPoints",
+	"wikipoints": "Obtener WikiPoints para usuario",
+	"wikipoints-special-form-name": "Obtener WikiPoints para usuario",
+	"wikipoints-special-form-name-label": "Usuario",
+	"wikipoints-special-form-name-submit": "Presentar",
+    "mostwikipoints": "Usuarios con más WikiPoints",
+	"wikipoints-mostpoints-rank": "Rango",
+	"wikipoints-mostpoints-username": "Usuario",
+	"wikipoints-mostpoints-wikipoints": "WikiPoints",
+	"wikipoints-user-has": "$1 tiene '''$2''' WikiPoints.",
+	"wikipoints-user-nonexistent": "$1 no existir."
+}
