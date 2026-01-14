@@ -6,6 +6,7 @@ use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\SpecialPage\SpecialPageFactory;
+use MediaWiki\User\UserFactory;
 use Wikimedia\Rdbms\IConnectionProvider;
 
 class SpecialMostWikiPoints extends SpecialPage {
@@ -14,6 +15,7 @@ class SpecialMostWikiPoints extends SpecialPage {
 		private readonly IConnectionProvider $connectionProvider,
 		private readonly LinkRenderer $linkRenderer,
 		private readonly SpecialPageFactory $specialPageFactory,
+		private readonly UserFactory $userFactory,
 	) {
 		parent::__construct( 'MostWikiPoints' );
 		$this->cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
@@ -27,27 +29,8 @@ class SpecialMostWikiPoints extends SpecialPage {
 		$this->setHeaders();
 
 		$dbr = $this->connectionProvider->getReplicaDatabase();
-		/*
 		$qb = $dbr->newSelectQueryBuilder()
-			->select( [
-				'a.actor_name',
-				'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )'
-			] )
-			->from( 'revision', 'r' )
-			// table, alias, conds
-			->leftJoin( 'revision', 'p', [ 'r.rev_parent_id = p.rev_id' ] )
-			// table, alias, conds
-			->join( 'actor', 'a', [ 'r.rev_actor = a.actor_id' ] )
-			->groupBy( [ 'r.rev_actor', 'a.actor_name' ] )
-			->orderBy( 'wiki_points', 'DESC' )
-			->limit( 20 )
-			->caller( __METHOD__ );
-			*/
-		$qb = $dbr->newSelectQueryBuilder()
-			->select( [
-				'actor_id',
-				'actor_name'
-			] )
+			->select( 'actor_id' )
 			->from( 'actor' )
 			->caller( __METHOD__ );
 		$res = $qb->fetchResultSet();
@@ -61,10 +44,14 @@ class SpecialMostWikiPoints extends SpecialPage {
 
 		$rankings = [];
 		foreach ( $res as $row ) {
-			$points = $this->calculateWikiPoints( $row->actor_id );
+			$user = $this->userFactory->newFromActorId( $row->actor_id );
+			if ( $user->getBlock() ) {
+				continue;
+			}
+			$points = $this->getWikiPoints( $row->actor_id );
 			$rankings[] = [
 				'points' => $points,
-				'user' => $row->actor_name,
+				'user' => $user->getName(),
 			];
 		}
 		uasort( $rankings, static function ( $a, $b ) {
@@ -85,24 +72,34 @@ class SpecialMostWikiPoints extends SpecialPage {
 		$out->addHTML( Html::closeElement( 'table' ) );
 	}
 
-	private function calculateWikiPoints( int $userID ): int {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
-		$wikiPoints = $cache->getWithSetCallback(
-		$cache->makeKey( 'wikipoints', 'user-points', $userID ),
-		// 10 minutes
-		600,
-		function () use ( $userID ) {
-			$dbr = $this->connectionProvider->getReplicaDatabase();
-			return $this->connectionProvider->getReplicaDatabase()
-				->newSelectQueryBuilder()
-				->select( [ 'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )' ] )
-				->from( 'revision', 'r' )
-				->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
-				->where( [ 'r.rev_actor' => $userID ] )
-				->caller( __METHOD__ )
-				->fetchRow()
-				->wiki_points ?? 0;
-		}
+	private function getWikiPoints( int $userID ): int {
+		$wikiPoints = $this->cache->getWithSetCallback(
+			$this->cache->makeKey( 'wikipoints', 'user-points', $userID ),
+			// 10 minutes
+			600,
+			function () use ( $userID ) {
+				$dbr = $this->connectionProvider->getReplicaDatabase();
+				$totalWikiPoints = $dbr->newSelectQueryBuilder()
+					->select( [ 'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )' ] )
+					->from( 'revision', 'r' )
+					->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
+					->where( [ 'r.rev_actor' => $userID ] )
+					->caller( __METHOD__ )
+					->fetchRow()
+					->wiki_points ?? 0;
+				$revertedWikiPoints = $dbr->newSelectQueryBuilder()
+					->select( [ 'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )' ] )
+					->from( 'revision', 'r' )
+					->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
+					->leftJoin( 'change_tag', 't', 't.ct_rev_id = r.rev_id' )
+					->leftJoin( 'change_tag_def', 'd', 'd.ctd_id = t.ct_tag_id' )
+					->where( [ 'r.rev_actor' => $userID ] )
+					->andWhere( [ 'd.ctd_name' => [ "mw-reverted", "mw-undo" ] ] )
+					->caller( __METHOD__ )
+					->fetchRow()
+					->wiki_points ?? 0;
+				return $totalWikiPoints - $revertedWikiPoints;
+			}
 		);
 		return $wikiPoints;
 	}
