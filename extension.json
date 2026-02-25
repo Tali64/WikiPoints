@@ -36,7 +36,8 @@
 			"services": [
 				"ConnectionProvider",
 				"LinkRenderer",
-				"SpecialPageFactory"
+				"SpecialPageFactory",
+                "UserFactory"
 			]
 		}
 	}
