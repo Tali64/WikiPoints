@@ -3,7 +3,6 @@ namespace MediaWiki\Extension\WikiPoints;
 
 use MediaWiki\HTMLForm\HTMLForm;
 use MediaWiki\Linker\LinkRenderer;
-use MediaWiki\MediaWikiServices;
 use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\SpecialPage\SpecialPageFactory;
 use MediaWiki\User\UserFactory;
@@ -16,7 +15,7 @@ class SpecialWikiPoints extends SpecialPage {
 		private readonly LinkRenderer $linkRenderer,
 		private readonly SpecialPageFactory $specialPageFactory,
 		private readonly UserFactory $userFactory,
-        private readonly WANObjectCache $cache,
+		private readonly WANObjectCache $cache,
 	) {
 		parent::__construct( 'WikiPoints' );
 	}
