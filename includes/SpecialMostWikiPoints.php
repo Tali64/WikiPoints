@@ -7,6 +7,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\SpecialPage\SpecialPageFactory;
 use MediaWiki\User\UserFactory;
+use Wikimedia\ObjectCache\WANObjectCache;
 use Wikimedia\Rdbms\IConnectionProvider;
 
 class SpecialMostWikiPoints extends SpecialPage {
@@ -16,9 +17,9 @@ class SpecialMostWikiPoints extends SpecialPage {
 		private readonly LinkRenderer $linkRenderer,
 		private readonly SpecialPageFactory $specialPageFactory,
 		private readonly UserFactory $userFactory,
+        private readonly WANObjectCache $cache,
 	) {
 		parent::__construct( 'MostWikiPoints' );
-		$this->cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
 	}
 
 	/**
@@ -57,7 +58,7 @@ class SpecialMostWikiPoints extends SpecialPage {
 		uasort( $rankings, static function ( $a, $b ) {
 			return $b['points'] <=> $a['points'];
 		} );
-		array_slice( $rankings, 0, 20 );
+		$rankings = array_slice( $rankings, 0, 20 );
 		$i = 1;
 		$lang = $this->getLanguage();
 		foreach ( $rankings as $rank ) {

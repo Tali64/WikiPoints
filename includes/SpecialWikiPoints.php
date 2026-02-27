@@ -7,6 +7,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\SpecialPage\SpecialPageFactory;
 use MediaWiki\User\UserFactory;
+use Wikimedia\ObjectCache\WANObjectCache;
 use Wikimedia\Rdbms\IConnectionProvider;
 
 class SpecialWikiPoints extends SpecialPage {
@@ -15,9 +16,9 @@ class SpecialWikiPoints extends SpecialPage {
 		private readonly LinkRenderer $linkRenderer,
 		private readonly SpecialPageFactory $specialPageFactory,
 		private readonly UserFactory $userFactory,
+        private readonly WANObjectCache $cache,
 	) {
 		parent::__construct( 'WikiPoints' );
-		$this->cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
 	}
 
 	/**
