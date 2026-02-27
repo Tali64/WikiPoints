@@ -28,7 +28,8 @@
 				"ConnectionProvider",
 				"LinkRenderer",
 				"SpecialPageFactory",
-				"UserFactory"
+				"UserFactory",
+                "MainWANObjectCache"
 			]
 		},
 		"MostWikiPoints": {
@@ -37,7 +38,8 @@
 				"ConnectionProvider",
 				"LinkRenderer",
 				"SpecialPageFactory",
-                "UserFactory"
+                "UserFactory",
+                "MainWANObjectCache"
 			]
 		}
 	}
