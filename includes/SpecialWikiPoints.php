@@ -70,7 +70,7 @@ class SpecialWikiPoints extends SpecialPage {
 			$this->cache->makeKey( 'wikipoints', 'user-points', $userID ),
 			// 10 minutes
 			600,
-			fn() => $this->fetchWikiPointsFromDB( $userID )
+			fn () => $this->fetchWikiPointsFromDB( $userID )
 		);
 		return $wikiPoints;
 	}
