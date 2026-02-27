@@ -84,7 +84,7 @@ class SpecialMostWikiPoints extends SpecialPage {
 					->from( 'revision', 'r' )
 					->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
 					->where( [ 'r.rev_actor' => $userID ] )
-					->caller( __METHOD__ )
+					->caller( "getWikiPoints" )
 					->fetchRow()
 					->wiki_points ?? 0;
 				$revertedWikiPoints = $dbr->newSelectQueryBuilder()
@@ -95,7 +95,7 @@ class SpecialMostWikiPoints extends SpecialPage {
 					->leftJoin( 'change_tag_def', 'd', 'd.ctd_id = t.ct_tag_id' )
 					->where( [ 'r.rev_actor' => $userID ] )
 					->andWhere( [ 'd.ctd_name' => [ "mw-reverted", "mw-undo" ] ] )
-					->caller( __METHOD__ )
+					->caller( "getWikiPoints" )
 					->fetchRow()
 					->wiki_points ?? 0;
 				return $totalWikiPoints - $revertedWikiPoints;
