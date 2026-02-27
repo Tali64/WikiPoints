@@ -70,30 +70,32 @@ class SpecialWikiPoints extends SpecialPage {
 			$this->cache->makeKey( 'wikipoints', 'user-points', $userID ),
 			// 10 minutes
 			600,
-			function () use ( $userID ) {
-				$dbr = $this->connectionProvider->getReplicaDatabase();
-				$totalWikiPoints = $dbr->newSelectQueryBuilder()
-					->select( [ 'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )' ] )
-					->from( 'revision', 'r' )
-					->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
-					->where( [ 'r.rev_actor' => $userID ] )
-					->caller( "getWikiPoints" )
-					->fetchRow()
-					->wiki_points ?? 0;
-				$revertedWikiPoints = $dbr->newSelectQueryBuilder()
-					->select( [ 'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )' ] )
-					->from( 'revision', 'r' )
-					->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
-					->leftJoin( 'change_tag', 't', 't.ct_rev_id = r.rev_id' )
-					->leftJoin( 'change_tag_def', 'd', 'd.ctd_id = t.ct_tag_id' )
-					->where( [ 'r.rev_actor' => $userID ] )
-					->andWhere( [ 'd.ctd_name' => [ "mw-reverted", "mw-undo" ] ] )
-					->caller( "getWikiPoints" )
-					->fetchRow()
-					->wiki_points ?? 0;
-				return $totalWikiPoints - $revertedWikiPoints;
-			}
+			fn() => $this->fetchWikiPointsFromDB( $userID )
 		);
 		return $wikiPoints;
+	}
+
+	private function fetchWikiPointsFromDB( int $userID ): int {
+		$dbr = $this->connectionProvider->getReplicaDatabase();
+		$totalWikiPoints = $dbr->newSelectQueryBuilder()
+			->select( [ 'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )' ] )
+			->from( 'revision', 'r' )
+			->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
+			->where( [ 'r.rev_actor' => $userID ] )
+			->caller( __METHOD__ )
+			->fetchRow()
+			->wiki_points ?? 0;
+		$revertedWikiPoints = $dbr->newSelectQueryBuilder()
+			->select( [ 'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )' ] )
+			->from( 'revision', 'r' )
+			->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
+			->leftJoin( 'change_tag', 't', 't.ct_rev_id = r.rev_id' )
+			->leftJoin( 'change_tag_def', 'd', 'd.ctd_id = t.ct_tag_id' )
+			->where( [ 'r.rev_actor' => $userID ] )
+			->andWhere( [ 'd.ctd_name' => [ "mw-reverted", "mw-undo" ] ] )
+			->caller( __METHOD__ )
+			->fetchRow()
+			->wiki_points ?? 0;
+		return $totalWikiPoints - $revertedWikiPoints;
 	}
 }
