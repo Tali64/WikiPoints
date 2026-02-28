@@ -75,8 +75,8 @@ class SpecialMostWikiPoints extends SpecialPage {
 	private function getWikiPoints( int $userID ): int {
 		$wikiPoints = $this->cache->getWithSetCallback(
 			$this->cache->makeKey( 'wikipoints', 'user-points', $userID ),
-			// 10 minutes
-			600,
+			// 1 hour
+			3600,
 			fn () => $this->fetchWikiPointsFromDB( $userID )
 		);
 		return $wikiPoints;
