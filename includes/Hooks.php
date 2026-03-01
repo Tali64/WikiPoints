@@ -72,4 +72,21 @@ class Hooks implements PageSaveCompleteHook {
 
 		$dbw->query( $sql, __METHOD__ );
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function onUnblockUserComplete( $block, $user ) {
+		if ( !( $block->getType() == 'autoblock' ) ) {
+			$dbw = $this->dbProvider->getPrimaryDatabase();
+			$actorName = $block->getTargetName();
+			$actorId = $this->an->findActorIdByName( $actorName, $dbw );
+			$dbw->update(
+				'wikipoints',
+				[ 'blocked' => 0 ],
+				[ 'actor' => $actorId ],
+				__METHOD__
+			);
+		}
+	}
 }
