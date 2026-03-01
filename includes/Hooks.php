@@ -18,7 +18,7 @@ class Hooks implements PageSaveCompleteHook {
 	 * @inheritDoc
 	 */
 	public function onBlockIpComplete( $block, $user, $priorBlock ) {
-		if ( !( $block->getType() == 'autoblock' ) ) {
+		if ( $block->getType() !== 'autoblock' ) {
 			$dbw = $this->dbProvider->getPrimaryDatabase();
 			$actorName = $block->getTargetName();
 			$actorId = $this->an->findActorIdByName( $actorName, $dbw );
@@ -76,8 +76,35 @@ class Hooks implements PageSaveCompleteHook {
 	/**
 	 * @inheritDoc
 	 */
+	public function onRenameUserComplete( $uid, $oldName, $newName ) {
+		$dbw = $this->dbProvider->getPrimaryDatabase();
+		$actorId = $this->an->findActorIdByName( $newName, $dbw );
+		$dbw->update(
+			'wikipoints',
+			[ 'name' => $newName ],
+			[ 'actor' => $actorId ],
+			__METHOD__
+		);
+		/*
+		if ( $block->getType() !== 'autoblock' ) {
+			$dbw = $this->dbProvider->getPrimaryDatabase();
+			$actorName = $block->getTargetName();
+			$actorId = $this->an->findActorIdByName( $actorName, $dbw );
+			$dbw->update(
+				'wikipoints',
+				[ 'blocked' => 0 ],
+				[ 'actor' => $actorId ],
+				__METHOD__
+			);
+		}
+		*/
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function onUnblockUserComplete( $block, $user ) {
-		if ( !( $block->getType() == 'autoblock' ) ) {
+		if ( $block->getType() !== 'autoblock' ) {
 			$dbw = $this->dbProvider->getPrimaryDatabase();
 			$actorName = $block->getTargetName();
 			$actorId = $this->an->findActorIdByName( $actorName, $dbw );
