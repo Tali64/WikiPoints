@@ -10,7 +10,6 @@ use Wikimedia\ObjectCache\WANObjectCache;
 use Wikimedia\Rdbms\IConnectionProvider;
 
 class SpecialMostWikiPoints extends SpecialPage {
-
 	public function __construct(
 		private readonly IConnectionProvider $connectionProvider,
 		private readonly LinkRenderer $linkRenderer,
@@ -27,82 +26,52 @@ class SpecialMostWikiPoints extends SpecialPage {
 	public function execute( $subPage ): void {
 		$out = $this->getOutput();
 		$this->setHeaders();
-
-		$dbr = $this->connectionProvider->getReplicaDatabase();
-		$qb = $dbr->newSelectQueryBuilder()
-			->select( 'actor_id' )
-			->from( 'actor' )
-			->caller( __METHOD__ );
-		$res = $qb->fetchResultSet();
-
+		$res = $this->cache->getWithSetCallback(
+			$this->cache->makeKey( 'wikipoints', 'top-20' ),
+			// 1 hour
+			3600,
+			fn () => $this->fetchTop20()
+		);
+		$tableHeader = Html::element( 'th', [], $this->msg( 'wikipoints-mostpoints-rank' )->text() )
+		. Html::element( 'th', [], $this->msg( 'wikipoints-mostpoints-username' )->text() )
+		. Html::element( 'th', [], $this->msg( 'wikipoints-mostpoints-wikipoints' )->text() );
 		$out->addHTML( Html::openElement( 'table', [ 'class' => 'wikitable' ] ) );
-		$out->addHTML( Html::openElement( 'tr' ) );
-		$out->addHTML( Html::element( 'th', [], $this->msg( 'wikipoints-mostpoints-rank' )->text() ) );
-		$out->addHTML( Html::element( 'th', [], $this->msg( 'wikipoints-mostpoints-username' )->text() ) );
-		$out->addHTML( Html::element( 'th', [], $this->msg( 'wikipoints-mostpoints-wikipoints' )->text() ) );
-		$out->addHTML( Html::closeElement( 'tr' ) );
-
-		$rankings = [];
-		foreach ( $res as $row ) {
-			$user = $this->userFactory->newFromActorId( $row->actor_id );
-			if ( $user->getBlock() ) {
-				continue;
-			}
-			$points = $this->getWikiPoints( $row->actor_id );
-			$rankings[] = [
-				'points' => $points,
-				'user' => $user->getName(),
-			];
-		}
-		uasort( $rankings, static function ( $a, $b ) {
-			return $b['points'] <=> $a['points'];
-		} );
-		$rankings = array_slice( $rankings, 0, 20 );
+		$out->addHTML( Html::rawElement( 'tr', [], $tableHeader ) );
 		$i = 1;
 		$lang = $this->getLanguage();
-		foreach ( $rankings as $rank ) {
-			$title = $this->specialPageFactory->getPage( 'Contributions' )->getPageTitle( $rank['user'] );
-			$out->addHTML( Html::openElement( 'tr' ) );
-			$out->addHTML( Html::element( 'td', [], $lang->formatNum( $i ) ) );
-			$out->addHTML( Html::rawElement( 'td', [], $this->linkRenderer->makeLink( $title, $rank['user'] ) ) );
-			$out->addHTML( Html::element( 'td', [], $lang->formatNum( $rank['points'] ) ) );
-			$out->addHTML( Html::closeElement( 'tr' ) );
+		foreach ( $res as $row ) {
+			$title = $this->specialPageFactory->getPage( 'Contributions' )->getPageTitle( $row['name'] );
+			$tableRow = Html::element( 'td', [], $lang->formatNum( $i ) )
+			. Html::rawElement( 'td', [], $this->linkRenderer->makeLink( $title, $row['name'] ) )
+			. Html::element( 'td', [], $lang->formatNum( $row['points']) );
+			$out->addHTML( Html::rawElement( 'tr', [], $tableRow ) );
 			$i++;
 		}
 		$out->addHTML( Html::closeElement( 'table' ) );
 	}
 
-	private function getWikiPoints( int $userID ): int {
-		$wikiPoints = $this->cache->getWithSetCallback(
-			$this->cache->makeKey( 'wikipoints', 'user-points', $userID ),
-			// 1 hour
-			3600,
-			fn () => $this->fetchWikiPointsFromDB( $userID )
-		);
-		return $wikiPoints;
-	}
 
-	private function fetchWikiPointsFromDB( int $userID ): int {
+	/**
+	 * @inheritDoc
+	 */
+	private function fetchTop20() {
 		$dbr = $this->connectionProvider->getReplicaDatabase();
-		$totalWikiPoints = $dbr->newSelectQueryBuilder()
-			->select( [ 'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )' ] )
-			->from( 'revision', 'r' )
-			->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
-			->where( [ 'r.rev_actor' => $userID ] )
+		$res = $dbr->newSelectQueryBuilder()
+			->select( [ 'actor', 'name', 'points' ] )
+			->from( 'wikipoints' )
+			->where( [ 'blocked' => 0 ] )
+			->orderBy( 'points', 'DESC' )
+			->limit( 20 )
 			->caller( __METHOD__ )
-			->fetchRow()
-			->wiki_points ?? 0;
-		$revertedWikiPoints = $dbr->newSelectQueryBuilder()
-			->select( [ 'wiki_points' => 'SUM( r.rev_len - COALESCE( p.rev_len, 0 ) )' ] )
-			->from( 'revision', 'r' )
-			->leftJoin( 'revision', 'p', 'r.rev_parent_id = p.rev_id' )
-			->leftJoin( 'change_tag', 't', 't.ct_rev_id = r.rev_id' )
-			->leftJoin( 'change_tag_def', 'd', 'd.ctd_id = t.ct_tag_id' )
-			->where( [ 'r.rev_actor' => $userID ] )
-			->andWhere( [ 'd.ctd_name' => [ "mw-reverted", "mw-undo" ] ] )
-			->caller( __METHOD__ )
-			->fetchRow()
-			->wiki_points ?? 0;
-		return $totalWikiPoints - $revertedWikiPoints;
+			->fetchResultSet();
+		$users = [];
+		foreach ( $res as $row ) {
+			$users[] = [
+				'actor' => $row->actor,
+				'name' => $row->name,
+				'points' => $row->points,
+			];
+		}
+		return $users;
 	}
 }
