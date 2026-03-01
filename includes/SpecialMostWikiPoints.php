@@ -43,13 +43,12 @@ class SpecialMostWikiPoints extends SpecialPage {
 			$title = $this->specialPageFactory->getPage( 'Contributions' )->getPageTitle( $row['name'] );
 			$tableRow = Html::element( 'td', [], $lang->formatNum( $i ) )
 			. Html::rawElement( 'td', [], $this->linkRenderer->makeLink( $title, $row['name'] ) )
-			. Html::element( 'td', [], $lang->formatNum( $row['points']) );
+			. Html::element( 'td', [], $lang->formatNum( $row['points'] ) );
 			$out->addHTML( Html::rawElement( 'tr', [], $tableRow ) );
 			$i++;
 		}
 		$out->addHTML( Html::closeElement( 'table' ) );
 	}
-
 
 	/**
 	 * @inheritDoc

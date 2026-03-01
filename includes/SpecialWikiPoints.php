@@ -59,12 +59,18 @@ class SpecialWikiPoints extends SpecialPage {
 		}
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function trySubmit( array $formData ): bool {
 		$out = $this->getOutput();
 		$out->redirect( $this->getPageTitle( $formData[ 'username' ] )->getLocalURL() );
 		return true;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	private function getWikiPoints( int $userID ): int {
 		$wikiPoints = $this->cache->getWithSetCallback(
 			$this->cache->makeKey( 'wikipoints', 'user-points', $userID ),
@@ -75,6 +81,9 @@ class SpecialWikiPoints extends SpecialPage {
 		return $wikiPoints;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	private function fetchWikiPointsFromDB( int $userID ): int {
 		$dbr = $this->connectionProvider->getReplicaDatabase();
 		$totalWikiPoints = $dbr->newSelectQueryBuilder()

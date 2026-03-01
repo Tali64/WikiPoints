@@ -1,12 +1,8 @@
 <?php
 namespace MediaWiki\Extension\WikiPoints;
 
-use MediaWiki\Page\WikiPage;
-use MediaWiki\Revision\RevisionRecord;
-use MediaWiki\Storage\EditResult;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\ActorNormalization;
-use MediaWiki\User\UserIdentity;
 use Wikimedia\Rdbms\IConnectionProvider;
 
 class Hooks implements PageSaveCompleteHook {
@@ -71,4 +67,3 @@ class Hooks implements PageSaveCompleteHook {
 		$dbw->query( $sql, __METHOD__ );
 	}
 }
-

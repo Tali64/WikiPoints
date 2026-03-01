@@ -2,7 +2,7 @@
 namespace MediaWiki\Extension\WikiPoints;
 
 class Installer {
-    public static function onLoadExtensionSchemaUpdates( $updater ) {
-        $updater->addExtensionTable( 'wikipoints',  __DIR__ . '/wikipoints.sql' );
-    }
+	public static function onLoadExtensionSchemaUpdates( $updater ) {
+		$updater->addExtensionTable( 'wikipoints', __DIR__ . '/wikipoints.sql' );
+	}
 }
