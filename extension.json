@@ -5,16 +5,26 @@
 	"requires": {
 		"MediaWiki": ">= 1.43.0"
 	},
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"type": "specialpage",
 	"license-name": "GPL-3.0-or-later",
 	"manifest_version": 2,
-	"AutoloadClasses": {
-		"MediaWiki\\Extension\\WikiPoints\\SpecialWikiPoints": "includes/SpecialWikiPoints.php",
-		"MediaWiki\\Extension\\WikiPoints\\SpecialMostWikiPoints": "includes/SpecialMostWikiPoints.php"
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\WikiPoints\\": "includes/"
 	},
 	"ExtensionMessagesFiles": {
 		"WikiPointsAlias": "WikiPoints.i18n.alias.php"
+	},
+	"HookHandlers": {
+		"Main": {
+			"class": "MediaWiki\\Extension\\WikiPoints\\Hooks",
+			"services": [ "ActorNormalization", "ConnectionProvider" ]
+		}
+	},
+	"Hooks": {
+		"BlockIpComplete": "Main",
+		"LoadExtensionSchemaUpdates": "MediaWiki\\Extension\\WikiPoints\\Installer::onLoadExtensionSchemaUpdates",
+		"PageSaveComplete": "Main"
 	},
 	"MessagesDirs": {
 		"WikiPoints": [
@@ -29,7 +39,7 @@
 				"LinkRenderer",
 				"SpecialPageFactory",
 				"UserFactory",
-                "MainWANObjectCache"
+				"MainWANObjectCache"
 			]
 		},
 		"MostWikiPoints": {
@@ -38,8 +48,8 @@
 				"ConnectionProvider",
 				"LinkRenderer",
 				"SpecialPageFactory",
-                "UserFactory",
-                "MainWANObjectCache"
+				"UserFactory",
+				"MainWANObjectCache"
 			]
 		}
 	}
