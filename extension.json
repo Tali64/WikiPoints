@@ -24,7 +24,8 @@
 	"Hooks": {
 		"BlockIpComplete": "Main",
 		"LoadExtensionSchemaUpdates": "MediaWiki\\Extension\\WikiPoints\\Installer::onLoadExtensionSchemaUpdates",
-		"PageSaveComplete": "Main"
+		"PageSaveComplete": "Main",
+		"UnblockUserComplete": "Main"
 	},
 	"MessagesDirs": {
 		"WikiPoints": [
