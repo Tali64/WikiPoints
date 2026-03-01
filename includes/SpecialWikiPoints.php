@@ -36,7 +36,7 @@ class SpecialWikiPoints extends SpecialPage {
 
 		$htmlForm = HTMLForm::factory( 'ooui', $formDescriptor, $this->getContext() );
 		$htmlForm
-			->setSubmitText( $this->msg( 'wikipoints-special-form-name-submit' ) )
+			->setSubmitTextMsg( 'wikipoints-special-form-name-submit' )
 			->setSubmitCallback( [ $this, 'trySubmit' ] )
 			->show();
 
