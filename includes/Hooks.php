@@ -14,6 +14,9 @@ class Hooks implements PageSaveCompleteHook {
 		$this->dbProvider = $dbProvider;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function onBlockIpComplete( $block, $user, $priorBlock ) {
 		if ( !( $block->getType() == 'autoblock' ) ) {
 			$dbw = $this->dbProvider->getPrimaryDatabase();
@@ -28,6 +31,9 @@ class Hooks implements PageSaveCompleteHook {
 		}
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function onPageSaveComplete(
 		$wikiPage,
 		$user,
