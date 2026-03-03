@@ -43,13 +43,14 @@ class Hooks implements PageSaveCompleteHook {
 		$editResult
 	): void {
 		$dbw = $this->dbProvider->getPrimaryDatabase();
+		$dbw->newSelectQueryBuilder()
 		$actor = $revisionRecord->getUser()->getName();
 		$actorId = $this->an->findActorIdByName( $actor, $dbw );
 		$dbw->upsert(
 			'wikipoints',
 			[ 'actor' => $actorId, 'name' => $actor, 'points' => 0, 'blocked' => 0 ],
 			[ 'actor' ],
-			[ 'points' => 0, 'blocked' => 0 ],
+			[],
 			__METHOD__
 		);
 		$sql = "UPDATE wikipoints wp
@@ -85,19 +86,6 @@ class Hooks implements PageSaveCompleteHook {
 			[ 'actor' => $actorId ],
 			__METHOD__
 		);
-		/*
-		if ( $block->getType() !== 'autoblock' ) {
-			$dbw = $this->dbProvider->getPrimaryDatabase();
-			$actorName = $block->getTargetName();
-			$actorId = $this->an->findActorIdByName( $actorName, $dbw );
-			$dbw->update(
-				'wikipoints',
-				[ 'blocked' => 0 ],
-				[ 'actor' => $actorId ],
-				__METHOD__
-			);
-		}
-		*/
 	}
 
 	/**
