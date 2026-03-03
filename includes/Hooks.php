@@ -43,7 +43,6 @@ class Hooks implements PageSaveCompleteHook {
 		$editResult
 	): void {
 		$dbw = $this->dbProvider->getPrimaryDatabase();
-		$dbw->newSelectQueryBuilder()
 		$actor = $revisionRecord->getUser()->getName();
 		$actorId = $this->an->findActorIdByName( $actor, $dbw );
 		$dbw->upsert(
