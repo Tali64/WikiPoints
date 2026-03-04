@@ -23,10 +23,10 @@
 	},
 	"Hooks": {
 		"BlockIpComplete": "Main",
+		"ContributionsToolLinks": "Main",
 		"LoadExtensionSchemaUpdates": "MediaWiki\\Extension\\WikiPoints\\Installer::onLoadExtensionSchemaUpdates",
 		"PageSaveComplete": "Main",
 		"RenameUserComplete": "Main",
-		"ContributionsToolLinks": "Main",
 		"UnblockUserComplete": "Main"
 	},
 	"MessagesDirs": {
