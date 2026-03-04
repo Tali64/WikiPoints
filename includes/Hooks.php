@@ -1,6 +1,7 @@
 <?php
 namespace MediaWiki\Extension\WikiPoints;
 
+use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\ActorNormalization;
 use Wikimedia\Rdbms\IConnectionProvider;
@@ -49,7 +50,7 @@ class Hooks implements PageSaveCompleteHook {
 			'wikipoints',
 			[ 'actor' => $actorId, 'name' => $actor, 'points' => 0, 'blocked' => 0 ],
 			[ 'actor' ],
-			[],
+			[ 'actor' => $actorId ],
 			__METHOD__
 		);
 		$sql = "UPDATE wikipoints wp
@@ -85,6 +86,19 @@ class Hooks implements PageSaveCompleteHook {
 			[ 'actor' => $actorId ],
 			__METHOD__
 		);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function onContributionsToolLinks( $id, $title, &$tools, $specialPage ) {
+		$linkRenderer = $specialPage->getLinkRenderer();
+		$tools['wikipoints'] = $linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor( 'Wikipoints', $title->getText() ),
+			'wikipoints'
+		);
+
+		return true;
 	}
 
 	/**
