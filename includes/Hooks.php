@@ -38,7 +38,7 @@ class Hooks implements PageSaveCompleteHook {
 	public function onContributionsToolLinks( $id, $title, &$tools, $specialPage ) {
 		$linkRenderer = $specialPage->getLinkRenderer();
 		$tools['wikipoints'] = $linkRenderer->makeKnownLink(
-			SpecialPage::getTitleFor( 'Wikipoints', $title->getText() ),
+			SpecialPage::getTitleFor( 'WikiPoints', $title->getText() ),
 			'wikipoints'
 		);
 
