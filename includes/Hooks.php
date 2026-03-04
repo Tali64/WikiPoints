@@ -35,6 +35,19 @@ class Hooks implements PageSaveCompleteHook {
 	/**
 	 * @inheritDoc
 	 */
+	public function onContributionsToolLinks( $id, $title, &$tools, $specialPage ) {
+		$linkRenderer = $specialPage->getLinkRenderer();
+		$tools['wikipoints'] = $linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor( 'Wikipoints', $title->getText() ),
+			'wikipoints'
+		);
+
+		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function onPageSaveComplete(
 		$wikiPage,
 		$user,
@@ -86,19 +99,6 @@ class Hooks implements PageSaveCompleteHook {
 			[ 'actor' => $actorId ],
 			__METHOD__
 		);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function onContributionsToolLinks( $id, $title, &$tools, $specialPage ) {
-		$linkRenderer = $specialPage->getLinkRenderer();
-		$tools['wikipoints'] = $linkRenderer->makeKnownLink(
-			SpecialPage::getTitleFor( 'Wikipoints', $title->getText() ),
-			'wikipoints'
-		);
-
-		return true;
 	}
 
 	/**
