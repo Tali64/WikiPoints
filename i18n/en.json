@@ -1,0 +1,19 @@
+{
+	"@metadata": {
+		"authors": [
+			"Tali64",
+			"SomeRandomDeveloper"
+		]
+	},
+    "wikipoints-description": "Extension providing a leaderboard for contributors, based on WikiPoints",
+	"wikipoints": "Get WikiPoints for a user",
+	"wikipoints-special-form-name": "Get WikiPoints for a user",
+	"wikipoints-special-form-name-label": "Username",
+	"wikipoints-special-form-name-submit": "Submit",
+    "mostwikipoints": "Users with the most WikiPoints",
+	"wikipoints-mostpoints-rank": "Rank",
+	"wikipoints-mostpoints-username": "Username",
+	"wikipoints-mostpoints-wikipoints": "WikiPoints",
+	"wikipoints-user-has": "$1 has '''$2''' WikiPoints.",
+	"wikipoints-user-nonexistent": "$1 does not exist."
+}

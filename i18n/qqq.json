@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": [
+			"SomeRandomDeveloper"
+		]
+	},
+	"wikipoints-description": "{{desc|name=WikiPoints|url=https://www.mediawiki.org/wiki/Extension:WikiPoints}}",
+	"wikipoints": "Title for Special:WikiPoints",
+	"wikipoints-special-form-name": "Title for the Special:WikiPoints form",
+	"wikipoints-special-form-name-label": "Label for the username field",
+	"mostwikipoints": "Title for Special:MostWikiPoints",
+	"wikipoints-mostpoints-rank": "Label for the table header of the rank column",
+	"wikipoints-mostpoints-username": "Label for the table header of the username column",
+	"wikipoints-mostpoints-wikipoints": "Label for the table header of the WiiPoints column",
+	"wikipoints-user-has": "Text showing the amount of wikipoints a user has. $1 is the username, $2 the amounts of wikipoints",
+	"wikipoints-user-nonexistent": "Text shown when the provided user doesn't exist. $1 is the username"
+}
